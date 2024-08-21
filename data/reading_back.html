@@ -43,6 +43,9 @@ Sections get turned off based on which Card Type is displayed.
 			<b>HINTS</b><br></p>{{Reading_Hint}}
 		</div>
 	</div>
+    <div>
+        <img id=reading-mnemonic-image />
+    </div>
 </div>
 
 <!--Phonetic-Semantic Composition Section-->
@@ -72,6 +75,9 @@ Sections get turned off based on which Card Type is displayed.
 			<b style="vertical-align: top">HINTS</b><br></p>{{Meaning_Hint}}
 		</div>
 	</div>
+    <div>
+        <img id=meaning-mnemonic-image />
+    </div>
   </details>
 </div>
 
@@ -562,5 +568,30 @@ setTooltips(reading, "Reading");
 <script>
 if ("__IS_PLAY_ALL_AVAILABLE__" === "__YES_IT_IS__") {
   pycmd('play:a:all');
+}
+</script>
+
+<!-- Load mnemonic images -->
+<script>
+const folderNames = {
+    'Radical': 'Radicals',
+    'Kanji': 'Kanji',
+    'Vocabulary': 'Vocabulary',
+    'Kana Vocabulary': 'KanaVocabulary',
+};
+
+function getUrls(wkId, type, mnemonic, thumb = false) {
+    // Prefer images specified in user notes if any
+    //const urlsFromNote = extractUrlsFromNote(mnemonic, thumb);
+    const urlsFromNote = null;
+    return urlsFromNote ? urlsFromNote :
+        ['https://wk-mnemonic-images.b-cdn.net/' + type + '/' + mnemonic + '/' + wkId + (thumb ? '-thumb.jpg' : '.png')];
+}
+
+document.getElementById('meaning-mnemonic-image').src =
+    getUrls("{{card_id}}", folderNames["{{Card_Type}}"], "Meaning", true)[0];
+if ("{{Card_Type}}" != "Radical") {
+    document.getElementById('reading-mnemonic-image').src =
+        getUrls("{{card_id}}", folderNames["{{Card_Type}}"], "Reading", true)[0];
 }
 </script>
