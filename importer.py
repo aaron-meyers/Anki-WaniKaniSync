@@ -24,8 +24,8 @@ class ImportCancelledException(Exception):
 class WKImporter(NoteImporter):
     FIELDS = [
         "card_id", "sort_id", "Characters", "Card_Type", "Word_Type",
-        "Meaning", "Meaning_Mnemonic", "Meaning_Hint", "Meaning_Whitelist",
-        "Reading", "Reading_Onyomi", "Reading_Kunyomi", "Reading_Nanori", "Reading_Whitelist", "Reading_Mnemonic", "Reading_Hint",
+        "Meaning", "Meaning_Mnemonic", "Meaning_Hint", "Meaning_Whitelist", "Meaning_Mnemonic_Image", "Meaning_Mnemonic_Image_Url",
+        "Reading", "Reading_Onyomi", "Reading_Kunyomi", "Reading_Nanori", "Reading_Whitelist", "Reading_Mnemonic", "Reading_Hint", "Reading_Mnemonic_Image", "Reading_Mnemonic_Image_Url",
         "Components_Characters", "Components_Meaning", "Components_Reading",
         "Similar_Characters", "Similar_Meaning", "Similar_Reading",
         "Found_in_Characters", "Found_in_Meaning", "Found_in_Reading",
@@ -160,6 +160,8 @@ class WKImporter(NoteImporter):
             "Meaning_Mnemonic":      self.html_newlines(((data.get("meaning_mnemonic", "") or "") + meaning_note).strip()),
             "Meaning_Hint":          self.html_newlines(data.get("meaning_hint", "") or ""),
             "Meaning_Whitelist":     ", ".join(meanings_whl + meanings + meaning_synonyms),
+            "Meaning_Mnemonic_Image_Url": self.get_mnemonic_image_url(subject, "Meaning"),
+            "Meaning_Mnemonic_Image": self.ensure_mnemonic_image(subject, "Meaning"),
 
             "Reading":               ", ".join(readings.get("primary", [])),
             "Reading_Onyomi":        ", ".join(readings.get("onyomi", [])),
@@ -168,6 +170,8 @@ class WKImporter(NoteImporter):
             "Reading_Whitelist":     ", ".join(readings.get("accepted", [])),
             "Reading_Mnemonic":      self.html_newlines(((data.get("reading_mnemonic", "") or "") + reading_note).strip()),
             "Reading_Hint":          self.html_newlines(data.get("reading_hint", "") or ""),
+            "Reading_Mnemonic_Image_Url": self.get_mnemonic_image_url(subject, "Reading"),
+            "Reading_Mnemonic_Image": self.ensure_mnemonic_image(subject, "Reading"),
 
             "Components_Characters": "、 ".join(comp_chars),
             "Components_Meaning":    "、 ".join(comp_mean),
@@ -342,6 +346,39 @@ class WKImporter(NoteImporter):
             res[key] = res[key][0] + res[key][1]
 
         return res
+
+    def get_mnemonic_image_url(self, subject, mnemonic):
+        type = subject["object"]
+        if mnemonic == "Reading" and (type == "radical" or type == "kana_vocabulary"):
+            return ""
+        typeMap = {
+            'radical': 'Radicals',
+            'kanji': 'Kanji',
+            'vocabulary': 'Vocabulary',
+            'kana_vocabulary': 'KanaVocabulary',
+        }
+        urlType = typeMap[type]
+        return f'https://wk-mnemonic-images.b-cdn.net/{urlType}/{mnemonic}/{subject["id"]}-thumb.jpg'
+
+    def ensure_mnemonic_image(self, subject, mnemonic):
+        url = self.get_mnemonic_image_url(subject, mnemonic)
+        if not url:
+            return ""
+
+        dest_dir = pathlib.Path(self.col.media.dir())
+        filename = f'wkmi_{subject["id"]}_{mnemonic}.jpg'
+        filepath = dest_dir / filename
+
+        if not filepath.exists():
+            self.do_limit("wk_import")
+            # TODO - may want different configuration of the HTTP session
+            req = self.session.get(url)
+            if (req.status_code == 404):
+                return ""
+            req.raise_for_status()
+            filepath.write_bytes(req.content)
+
+        return filename
 
     def apply_pitch_internal(self, reading, accent):
         mora = re.findall(r".[ょゃゅョャュ]?", reading)

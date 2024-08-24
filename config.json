@@ -9,6 +9,7 @@
     "AUTO_SYNC": false,
     "AUTO_REPORT": false,
     "FETCH_CONTEXT_PATTERNS": false,
+    "FETCH_MNEMONIC_IMAGES": false,
     "_LAST_SUBJECTS_SYNC": "",
     "_LAST_ASSIGNMENTS_SYNC": "",
     "_LAST_DUE_SYNC": ""
