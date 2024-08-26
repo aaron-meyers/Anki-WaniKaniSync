@@ -7,6 +7,9 @@ import lzma
 import html
 import csv
 import re
+import os
+import time
+from datetime import datetime
 from urllib.parse import unquote
 from time import sleep
 
@@ -366,19 +369,34 @@ class WKImporter(NoteImporter):
             return ""
 
         dest_dir = pathlib.Path(self.col.media.dir())
-        filename = f'wkmi_{subject["id"]}_{mnemonic}.jpg'
+        filename = f'wkmn_{subject["id"]}{mnemonic.lower()[0]}.jpg'
         filepath = dest_dir / filename
 
         if not filepath.exists():
-            self.do_limit("wk_import")
-            # TODO - may want different configuration of the HTTP session
-            req = self.session.get(url)
-            if (req.status_code == 404):
+            # TODO - probably should have some limit but may not need to be as aggressive?
+            # self.do_limit("wk_import")
+            if not self.download_file_with_timestamp(url, filepath):
                 return ""
-            req.raise_for_status()
-            filepath.write_bytes(req.content)
 
-        return filename
+        return f'<img src="{filename}">'
+
+    def download_file_with_timestamp(self, url, filepath):
+        req = self.session.get(url)
+        if (req.status_code == 404):
+            return False
+        req.raise_for_status()
+        filepath.write_bytes(req.content)
+
+        last_modified = req.headers.get('Last-Modified')
+
+        if last_modified:
+            # Convert the Last-Modified header to a timestamp
+            mod_time = datetime.strptime(last_modified, '%a, %d %b %Y %H:%M:%S %Z').timestamp()
+
+            # Set the modified time of the file
+            os.utime(filepath, (time.time(), mod_time))
+
+        return True
 
     def apply_pitch_internal(self, reading, accent):
         mora = re.findall(r".[ょゃゅョャュ]?", reading)
