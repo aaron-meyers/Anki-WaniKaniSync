@@ -35,6 +35,13 @@ Sections get turned off based on which Card Type is displayed.
 			<b style="vertical-align: top">HINTS</b><br></p>{{Meaning_Hint}}
 		</div>
 	</div>
+	{{Meaning_Mnemonic_Image}}
+{{^Meaning_Mnemonic_Image}}
+	{{#Meaning_Mnemonic_Image_Url}}
+	<p class="mnemonic-image-missing">no offline image</p>
+	<img src="{{Meaning_Mnemonic_Image_Url}}">
+	{{/Meaning_Mnemonic_Image_Url}}
+{{/Meaning_Mnemonic_Image}}
 </div>
 
 <!--Reading Section-->
@@ -62,6 +69,13 @@ Sections get turned off based on which Card Type is displayed.
 			<b>HINTS</b><br></p>{{Reading_Hint}}
 		</div>
 	</div>
+	{{Reading_Mnemonic_Image}}
+{{^Reading_Mnemonic_Image}}
+	{{#Reading_Mnemonic_Image_Url}}
+	<p class="mnemonic-image-missing">no offline image</p>
+	<img src="{{Reading_Mnemonic_Image_Url}}">
+	{{/Reading_Mnemonic_Image_Url}}
+{{/Reading_Mnemonic_Image}}
     <br/>
   </details>
 </div>

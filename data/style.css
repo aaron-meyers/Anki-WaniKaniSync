@@ -230,6 +230,11 @@ vocabulary {
 	color: var(--hint-color);
 }
 
+.mnemonic-image-missing {
+	font-size: 11px;
+	text-transform: uppercase;
+}
+
 #vocabulary-reading {
 	font-size: 18px;
 	font-family: "Hiragino Kaku Gothic Pro W3";
