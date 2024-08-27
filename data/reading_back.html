@@ -43,6 +43,12 @@ Sections get turned off based on which Card Type is displayed.
 			<b>HINTS</b><br></p>{{Reading_Hint}}
 		</div>
 	</div>
+	{{Reading_Mnemonic_Image}}
+{{^Reading_Mnemonic_Image}}
+	{{#Reading_Mnemonic_Image_Url}}
+	<p id="reading-mnemonic-image-missing" class="mnemonic-image-missing">no offline image</p>
+	{{/Reading_Mnemonic_Image_Url}}
+{{/Reading_Mnemonic_Image}}
 </div>
 
 <!--Phonetic-Semantic Composition Section-->
@@ -72,6 +78,12 @@ Sections get turned off based on which Card Type is displayed.
 			<b style="vertical-align: top">HINTS</b><br></p>{{Meaning_Hint}}
 		</div>
 	</div>
+	{{Meaning_Mnemonic_Image}}
+{{^Meaning_Mnemonic_Image}}
+	{{#Meaning_Mnemonic_Image_Url}}
+	<p id="meaning-mnemonic-image-missing" class="mnemonic-image-missing">no offline image</p>
+	{{/Meaning_Mnemonic_Image_Url}}
+{{/Meaning_Mnemonic_Image}}
   </details>
 </div>
 
@@ -557,6 +569,20 @@ setTooltips(radicals, "Radical");
 setTooltips(vocab, "Vocabulary");
 setTooltips(reading, "Reading");
 </script>
+
+<!-- Download online mnemonic images -->
+ <script>
+function addImgIfAvailable(url, addAfter) {
+	const image = document.createElement("img");
+	image.onload = () => {
+		document.getElementById(addAfter).after(image);
+	};
+	image.src = url;
+}
+
+addImgIfAvailable("{{Meaning_Mnemonic_Image_Url}}", "meaning-mnemonic-image-missing");
+addImgIfAvailable("{{Reading_Mnemonic_Image_Url}}", "reading-mnemonic-image-missing");
+ </script>
 
 <!-- Auto-Play audio -->
 <script>
