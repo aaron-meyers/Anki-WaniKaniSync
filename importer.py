@@ -35,6 +35,10 @@ class WKImporter(NoteImporter):
         "Context_Patterns", "Context_Sentences",
         "Audio", "Keisei"
     ]
+    MNEMONIC_IMAGE_FIELDS = [
+        "Meaning_Mnemonic_Image", "Meaning_Mnemonic_Image_Url",
+        "Reading_Mnemonic_Image", "Reading_Mnemonic_Image_Url"
+    ]
 
     def __init__(self, collection, model, subjects, sub_subjects, study_mats):
         NoteImporter.__init__(self, collection, None)
@@ -55,6 +59,7 @@ class WKImporter(NoteImporter):
 
         config = mw.addonManager.getConfig(__name__)
         self.fetch_patterns = config["FETCH_CONTEXT_PATTERNS"]
+        self.fetch_mnemonic_images = config["FETCH_MNEMONIC_IMAGES"]
 
     def do_limit(self, name):
         while not mw.progress.want_cancel():
@@ -120,6 +125,8 @@ class WKImporter(NoteImporter):
             if field not in self.FIELDS and field != "_tags":
                 self.mapping[i] = None
             if not self.fetch_patterns and field == "Context_Patterns":
+                self.mapping[i] = None
+            if not self.fetch_mnemonic_images and field in self.MNEMONIC_IMAGE_FIELDS:
                 self.mapping[i] = None
 
     def foreignNotes(self):
@@ -351,6 +358,9 @@ class WKImporter(NoteImporter):
         return res
 
     def get_mnemonic_image_url(self, subject, mnemonic):
+        if not self.fetch_mnemonic_images:
+            return ""
+
         type = subject["object"]
         if mnemonic == "Reading" and (type == "radical" or type == "kana_vocabulary"):
             return ""
